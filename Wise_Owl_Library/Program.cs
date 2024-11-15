@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 using Wise_Owl_Library.Data;
 using Wise_Owl_Library.Interfaces;
@@ -16,6 +17,9 @@ builder.Services.AddLogging();
 
 builder.Services.AddScoped<IPriceChangeService, PriceChangeService>();
 builder.Services.AddScoped<IBookService, BookService>();
+
+
+
 
 WebApplication app = builder.Build();
 
