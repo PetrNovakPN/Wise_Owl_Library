@@ -2,13 +2,14 @@
 using Microsoft.EntityFrameworkCore;
 using Wise_Owl_Library.Data;
 using Wise_Owl_Library.Data.Dto;
+using Wise_Owl_Library.Interfaces;
 using Wise_Owl_Library.Models;
 
 namespace Wise_Owl_Library.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class PriceChangeController(ApplicationDbContext context, ILogger<PriceChangeController> logger) : ControllerBase
+    public class PriceChangeController(IPriceChangeService priceChangeService, ILogger<PriceChangeController> logger) : ControllerBase
     {
 
         // GET: api/PriceChange
@@ -17,31 +18,11 @@ namespace Wise_Owl_Library.Controllers
         {
             try
             {
-                // Load all price changes from the database including books and authors
-                List<PriceChange> priceChanges = await context.PriceChanges
-                    .Include(pc => pc.Book)
-                    .ThenInclude(b => b.Authors)
-                    .ToListAsync();
-
-                // Map price changes to DTO
-                List<PriceChangeDto> priceChangeDto = priceChanges.Select(pc => new PriceChangeDto
-                {
-                    Id = pc.Id,
-                    BookId = pc.BookId,
-                    BookTitle = pc.Book.Title,
-                    Authors = pc.Book.Authors
-                        .Select(a => a.Name)
-                        .ToList(),
-                    OldPrice = pc.OldPrice,
-                    NewPrice = pc.NewPrice,
-                    ChangeDate = pc.ChangeDate
-                }).ToList();
-
+                List<PriceChangeDto> priceChangeDto = await priceChangeService.GetPriceChangesAsync();
                 return Ok(priceChangeDto);
             }
             catch (Exception ex)
             {
-                // Log the error
                 logger.LogError(ex, "Error loading price changes.");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error.");
             }
