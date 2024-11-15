@@ -11,6 +11,6 @@ namespace Wise_Owl_Library.Models
         public required string Name { get; set; }
 
         [Required]
-        public List<BookAuthor> BookAuthors { get; set; } = new List<BookAuthor>();
+        public List<Book> Books { get; set; } = [];
     }
 }

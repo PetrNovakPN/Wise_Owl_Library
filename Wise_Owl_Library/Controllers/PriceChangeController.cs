@@ -20,8 +20,7 @@ namespace Wise_Owl_Library.Controllers
                 // Load all price changes from the database including books and authors
                 List<PriceChange> priceChanges = await context.PriceChanges
                     .Include(pc => pc.Book)
-                    .ThenInclude(b => b.BookAuthors)
-                    .ThenInclude(ba => ba.Author)
+                    .ThenInclude(b => b.Authors)
                     .ToListAsync();
 
                 // Map price changes to DTO
@@ -30,9 +29,8 @@ namespace Wise_Owl_Library.Controllers
                     Id = pc.Id,
                     BookId = pc.BookId,
                     BookTitle = pc.Book.Title,
-                    Authors = pc.Book.BookAuthors
-                        .Where(ba => ba.Author != null)
-                        .Select(ba => ba.Author!.Name)
+                    Authors = pc.Book.Authors
+                        .Select(a => a.Name)
                         .ToList(),
                     OldPrice = pc.OldPrice,
                     NewPrice = pc.NewPrice,
