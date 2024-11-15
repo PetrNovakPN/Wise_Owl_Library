@@ -8,16 +8,8 @@ namespace Wise_Owl_Library.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class PriceChangeController : ControllerBase
+    public class PriceChangeController(ApplicationDbContext context, ILogger<PriceChangeController> logger) : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
-        private readonly ILogger<PriceChangeController> _logger;
-
-        public PriceChangeController(ApplicationDbContext context, ILogger<PriceChangeController> logger)
-        {
-            _context = context;
-            _logger = logger;
-        }
 
         // GET: api/PriceChange
         [HttpGet]
@@ -26,7 +18,7 @@ namespace Wise_Owl_Library.Controllers
             try
             {
                 // Load all price changes from the database including books and authors
-                List<PriceChange> priceChanges = await _context.PriceChanges
+                List<PriceChange> priceChanges = await context.PriceChanges
                     .Include(pc => pc.Book)
                     .ThenInclude(b => b.BookAuthors)
                     .ThenInclude(ba => ba.Author)
@@ -38,7 +30,10 @@ namespace Wise_Owl_Library.Controllers
                     Id = pc.Id,
                     BookId = pc.BookId,
                     BookTitle = pc.Book.Title,
-                    Authors = pc.Book.BookAuthors.Select(ba => ba.Author.Name).ToList(),
+                    Authors = pc.Book.BookAuthors
+                        .Where(ba => ba.Author != null)
+                        .Select(ba => ba.Author!.Name)
+                        .ToList(),
                     OldPrice = pc.OldPrice,
                     NewPrice = pc.NewPrice,
                     ChangeDate = pc.ChangeDate
@@ -49,7 +44,7 @@ namespace Wise_Owl_Library.Controllers
             catch (Exception ex)
             {
                 // Log the error
-                _logger.LogError(ex, "Error loading price changes.");
+                logger.LogError(ex, "Error loading price changes.");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Internal server error.");
             }
         }
