@@ -9,7 +9,7 @@ namespace Wise_Owl_Library.Services
 {
     public class BookService(ApplicationDbContext context, ILogger<BookService> logger) : IBookService
     {
-        public async Task<IEnumerable<BookDto>> GetBooksAsync(string? title, int? stock)
+        public async Task<IEnumerable<Book>> GetBooksAsync(string? title, int? stock)
         {
             try
             {
@@ -27,8 +27,7 @@ namespace Wise_Owl_Library.Services
                     query = query.Where(b => b.Stock == stock.Value);
                 }
 
-                List<Book> books = await query.ToListAsync();
-                return books.Select(MapToBookDto).ToList();
+                return await query.ToListAsync();
             }
             catch (Exception ex)
             {
@@ -37,15 +36,13 @@ namespace Wise_Owl_Library.Services
             }
         }
 
-        public async Task<BookDto?> GetBookAsync(int id)
+        public async Task<Book?> GetBookAsync(int id)
         {
             try
             {
-                Book? book = await context.Books
+                return await context.Books
                     .Include(b => b.Authors)
                     .FirstOrDefaultAsync(b => b.Id == id);
-
-                return book == null ? null : MapToBookDto(book);
             }
             catch (Exception ex)
             {
@@ -54,34 +51,22 @@ namespace Wise_Owl_Library.Services
             }
         }
 
-        public async Task<IEnumerable<BookDto>> CreateBooksAsync(List<CreateBookDto> createBookDtos)
+        public async Task<IEnumerable<Book>> CreateBooksAsync(List<Book> books)
         {
             try
             {
-                List<BookDto> createdBooks = [];
-
-                foreach (CreateBookDto createBookDto in createBookDtos)
+                foreach (Book book in books)
                 {
-                    if (await BookExistsAsync(createBookDto.Title, createBookDto.Authors.Select(a => a.Name).ToList()))
+                    if (await BookExistsAsync(book.Title, book.Authors.Select(a => a.Name).ToList()))
                     {
-                        throw new InvalidOperationException($"The book '{createBookDto.Title}' already exists.");
+                        throw new InvalidOperationException($"The book '{book.Title}' already exists.");
                     }
 
-                    Book book = new()
-                    {
-                        Title = createBookDto.Title,
-                        Price = createBookDto.Price,
-                        Stock = createBookDto.Stock,
-                        Authors = createBookDto.Authors.Select(a => new Author { Name = a.Name }).ToList()
-                    };
-
                     context.Books.Add(book);
-                    await context.SaveChangesAsync();
-
-                    createdBooks.Add(MapToBookDto(book));
                 }
 
-                return createdBooks;
+                await context.SaveChangesAsync();
+                return books;
             }
             catch (Exception ex)
             {
@@ -90,9 +75,9 @@ namespace Wise_Owl_Library.Services
             }
         }
 
-        public async Task<bool> UpdateBookAsync(int id, UpdateBookDto updateBookDto)
+        public async Task<bool> UpdateBookAsync(int id, Book updatedBook)
         {
-            if (id != updateBookDto.Id)
+            if (id != updatedBook.Id)
             {
                 throw new ArgumentException("ID mismatch.");
             }
@@ -108,12 +93,12 @@ namespace Wise_Owl_Library.Services
                     return false;
                 }
 
-                if (book.Price != updateBookDto.Price)
+                if (book.Price != updatedBook.Price)
                 {
-                    AddPriceChange(book, updateBookDto.Price);
+                    AddPriceChange(book, updatedBook.Price);
                 }
 
-                UpdateBookDetails(book, updateBookDto);
+                UpdateBookDetails(book, updatedBook);
 
                 context.Entry(book).State = EntityState.Modified;
                 await context.SaveChangesAsync();
@@ -170,18 +155,6 @@ namespace Wise_Owl_Library.Services
             return await context.Books.AnyAsync(e => e.Id == id);
         }
 
-        private static BookDto MapToBookDto(Book book)
-        {
-            return new BookDto
-            {
-                Id = book.Id,
-                Title = book.Title,
-                Price = book.Price,
-                Stock = book.Stock,
-                Authors = book.Authors.Select(a => a.Name).ToList()
-            };
-        }
-
         private void AddPriceChange(Book book, decimal newPrice)
         {
             PriceChange priceChange = new()
@@ -195,12 +168,12 @@ namespace Wise_Owl_Library.Services
             context.PriceChanges.Add(priceChange);
         }
 
-        private static void UpdateBookDetails(Book book, UpdateBookDto updateBookDto)
+        private static void UpdateBookDetails(Book book, Book updatedBook)
         {
-            book.Title = updateBookDto.Title;
-            book.Price = updateBookDto.Price;
-            book.Stock = updateBookDto.Stock;
-            book.Authors = updateBookDto.Authors.Select(a => new Author { Name = a.Name }).ToList();
+            book.Title = updatedBook.Title;
+            book.Price = updatedBook.Price;
+            book.Stock = updatedBook.Stock;
+            book.Authors = updatedBook.Authors.Select(a => new Author { Name = a.Name }).ToList();
         }
     }
 }

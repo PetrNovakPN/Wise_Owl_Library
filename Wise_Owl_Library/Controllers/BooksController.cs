@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 using Wise_Owl_Library.Data;
 using Wise_Owl_Library.Data.Dto;
 using Wise_Owl_Library.Data.Dto.Requests;
@@ -19,8 +20,9 @@ namespace Wise_Owl_Library.Controllers
         {
             try
             {
-                IEnumerable<BookDto> books = await bookService.GetBooksAsync(title, stock);
-                return Ok(books);
+                IEnumerable<Book> books = await bookService.GetBooksAsync(title, stock);
+                List<BookDto> bookDtos = books.Select(book => new BookDto(book)).ToList();
+                return Ok(bookDtos);
             }
             catch (Exception)
             {
@@ -34,12 +36,13 @@ namespace Wise_Owl_Library.Controllers
         {
             try
             {
-                BookDto? book = await bookService.GetBookAsync(id);
+                Book? book = await bookService.GetBookAsync(id);
                 if (book == null)
                 {
                     return NotFound();
                 }
-                return Ok(book);
+                BookDto bookDto = new(book);
+                return Ok(bookDto);
             }
             catch (Exception)
             {
@@ -58,8 +61,17 @@ namespace Wise_Owl_Library.Controllers
 
             try
             {
-                IEnumerable<BookDto> createdBooks = await bookService.CreateBooksAsync(createBookDtos);
-                return Ok(createdBooks);
+                List<Book> books = createBookDtos.Select(dto => new Book
+                {
+                    Title = dto.Title,
+                    Price = dto.Price,
+                    Stock = dto.Stock,
+                    Authors = dto.Authors.Select(a => new Author { Name = a.Name }).ToList()
+                }).ToList();
+
+                IEnumerable<Book> createdBooks = await bookService.CreateBooksAsync(books);
+                List<BookDto> createdBookDtos = createdBooks.Select(book => new BookDto(book)).ToList();
+                return Ok(createdBookDtos);
             }
             catch (InvalidOperationException ex)
             {
@@ -87,7 +99,16 @@ namespace Wise_Owl_Library.Controllers
 
             try
             {
-                bool result = await bookService.UpdateBookAsync(id, updateBookDto);
+                Book updatedBook = new()
+                {
+                    Id = updateBookDto.Id,
+                    Title = updateBookDto.Title,
+                    Price = updateBookDto.Price,
+                    Stock = updateBookDto.Stock,
+                    Authors = updateBookDto.Authors.Select(a => new Author { Name = a.Name }).ToList()
+                };
+
+                bool result = await bookService.UpdateBookAsync(id, updatedBook);
                 if (!result)
                 {
                     return NotFound();
