@@ -19,7 +19,7 @@ namespace Wise_Owl_Library.Controllers
         {
             try
             {
-                var books = await bookService.GetBooksAsync(title, stock);
+                IEnumerable<BookDto> books = await bookService.GetBooksAsync(title, stock);
                 return Ok(books);
             }
             catch (Exception)
@@ -34,7 +34,7 @@ namespace Wise_Owl_Library.Controllers
         {
             try
             {
-                var book = await bookService.GetBookAsync(id);
+                BookDto? book = await bookService.GetBookAsync(id);
                 if (book == null)
                 {
                     return NotFound();
@@ -58,7 +58,7 @@ namespace Wise_Owl_Library.Controllers
 
             try
             {
-                var createdBooks = await bookService.CreateBooksAsync(createBookDtos);
+                IEnumerable<BookDto> createdBooks = await bookService.CreateBooksAsync(createBookDtos);
                 return Ok(createdBooks);
             }
             catch (InvalidOperationException ex)
@@ -87,7 +87,7 @@ namespace Wise_Owl_Library.Controllers
 
             try
             {
-                var result = await bookService.UpdateBookAsync(id, updateBookDto);
+                bool result = await bookService.UpdateBookAsync(id, updateBookDto);
                 if (!result)
                 {
                     return NotFound();
@@ -106,7 +106,7 @@ namespace Wise_Owl_Library.Controllers
         {
             try
             {
-                var result = await bookService.DeleteBookAsync(id);
+                bool result = await bookService.DeleteBookAsync(id);
                 if (!result)
                 {
                     return NotFound();
