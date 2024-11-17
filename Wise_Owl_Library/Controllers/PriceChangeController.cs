@@ -7,23 +7,36 @@ namespace Wise_Owl_Library.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class PriceChangeController(IPriceChangeService priceChangeService) : ControllerBase
+    public class PriceChangeController : ControllerBase
     {
+        private readonly IPriceChangeService _priceChangeService;
+
+        public PriceChangeController(IPriceChangeService priceChangeService)
+        {
+            _priceChangeService = priceChangeService;
+        }
 
         // GET: api/PriceChange
         [HttpGet]
         public async Task<ActionResult<IEnumerable<PriceChangeDto>>> GetPriceChanges()
         {
+            var priceChanges = await _priceChangeService.GetPriceChangesAsync();
 
-            List<PriceChangeDto> priceChangeDtos;
-
-           
-            priceChangeDtos = await priceChangeService.GetPriceChangesAsync();
-
-            if (priceChangeDtos.Count == 0)
+            if (priceChanges.Count == 0)
             {
-                throw new KeyNotFoundException("No price changes found.");
+                return NoContent();
             }
+
+            var priceChangeDtos = priceChanges.Select(pc => new PriceChangeDto
+            {
+                Id = pc.Id,
+                BookId = pc.BookId,
+                BookTitle = pc.Book.Title,
+                Authors = pc.Book.Authors.Select(a => a.Name).ToList(),
+                OldPrice = pc.OldPrice,
+                NewPrice = pc.NewPrice,
+                ChangeDate = pc.ChangeDate
+            }).ToList();
 
             return Ok(priceChangeDtos);
         }
