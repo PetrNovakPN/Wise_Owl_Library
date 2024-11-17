@@ -14,6 +14,6 @@ namespace Wise_Owl_Library.Models
         [Column(TypeName = "decimal(18,2)")]
         public decimal NewPrice { get; set; }
 
-        public DateTime ChangeDate { get; set; }
+        public DateTimeOffset ChangeDate { get; set; }
     }
 }

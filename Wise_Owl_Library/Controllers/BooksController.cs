@@ -16,20 +16,23 @@ namespace Wise_Owl_Library.Controllers
         public async Task<ActionResult<IEnumerable<BookDto>>> GetBooks(string? title = null, int? stock = null)
         {
             IEnumerable<Book> books = await bookService.GetBooksAsync(title, stock);
-            if (!books.Any())
-            {
-                return Ok(new List<BookDto>());
-            }
-            return Ok(books.Select(book => new BookDto(book)).ToList());
+
+            return Ok(!books.Any() ? [] : books.Select(book => new BookDto(book)).ToList());
+            
         }
 
         // GET: api/Books/5
         [HttpGet("{id}")]
         public async Task<ActionResult<BookDto>> GetBook(int id)
         {
-            Book book = await bookService.GetBookAsync(id) ?? throw new KeyNotFoundException($"Book with ID {id} not found.");
+            Book? book = await bookService.GetBookAsync(id); 
+
+            if (book == null) { return NotFound(new { message = $"Book with ID {id} not found." }); }
+
             return Ok(new BookDto(book));
         }
+
+
 
         // POST: api/Books
         [HttpPost]
