@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Wise_Owl_Library.Data.Dto;
 using Wise_Owl_Library.Interfaces;
 using Wise_Owl_Library.Models;
@@ -22,7 +21,7 @@ namespace Wise_Owl_Library.Controllers
                 return NoContent();
             }
 
-            List<PriceChangeDto> priceChangeDetails = new();
+            List<PriceChangeDto> priceChangeDetails = [];
 
             foreach (PriceChange pc in priceChanges)
             {

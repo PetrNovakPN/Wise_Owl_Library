@@ -6,10 +6,10 @@ namespace Wise_Owl_Library.Interfaces
 {
     public interface IBookService
     {
-        Task<IEnumerable<Book>> GetBooksAsync(string? title, int? stock);
+        Task<IEnumerable<Book>> GetBooksAsync(string? title = null, int? stock = null);
         Task<Book?> GetBookAsync(int id);
         Task<IEnumerable<Book>> CreateBooksAsync(List<Book> books);
-        Task<bool> UpdateBookAsync(int id, Book updatedBook);
+        Task<Book?> UpdateBookAsync(int id, Book updatedBook);
         Task<bool> DeleteBookAsync(int id);
     }
 }

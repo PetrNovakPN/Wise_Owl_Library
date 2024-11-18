@@ -44,7 +44,7 @@ namespace Wise_Owl_Library.Tests
             {
                 Id = 1,
                 Title = "Book 1",
-                Authors = new List<Author> { new Author { Name = "Author 1" } }
+                Authors = [new Author { Name = "Author 1" }]
             };
 
             _mockPriceChangeService.Setup(service => service.GetPriceChangesAsync()).ReturnsAsync(priceChanges);
@@ -64,7 +64,7 @@ namespace Wise_Owl_Library.Tests
         public async Task GetPriceChanges_ReturnsNoContent_WhenNoPriceChangesFound()
         {
             // Arrange
-            _mockPriceChangeService.Setup(service => service.GetPriceChangesAsync()).ReturnsAsync(new List<PriceChange>());
+            _mockPriceChangeService.Setup(service => service.GetPriceChangesAsync()).ReturnsAsync([]);
 
             // Act
             var result = await _controller.GetPriceChanges();

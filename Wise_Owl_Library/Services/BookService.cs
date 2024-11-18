@@ -53,35 +53,23 @@ namespace Wise_Owl_Library.Services
 
         public async Task<IEnumerable<Book>> CreateBooksAsync(List<Book> books)
         {
-            try
+            List<Book> createdBooks = [];
+
+            foreach (Book book in books)
             {
-                foreach (Book book in books)
+                if (!await BookExistsAsync(book.Title, book.Authors.Select(a => a.Name).ToList()))
                 {
-                    if (await BookExistsAsync(book.Title, book.Authors.Select(a => a.Name).ToList()))
-                    {
-                        throw new InvalidOperationException($"The book '{book.Title}' already exists.");
-                    }
-
                     context.Books.Add(book);
+                    createdBooks.Add(book);
                 }
+            }
 
-                await context.SaveChangesAsync();
-                return books;
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error creating books.");
-                throw;
-            }
+            await context.SaveChangesAsync();
+            return createdBooks;
         }
 
-        public async Task<bool> UpdateBookAsync(int id, Book updatedBook)
+        public async Task<Book?> UpdateBookAsync(int id, Book updatedBook)
         {
-            if (id != updatedBook.Id)
-            {
-                throw new ArgumentException("ID mismatch.");
-            }
-
             try
             {
                 Book? book = await context.Books
@@ -90,7 +78,7 @@ namespace Wise_Owl_Library.Services
 
                 if (book == null)
                 {
-                    return false;
+                    return null;
                 }
 
                 if (book.Price != updatedBook.Price)
@@ -98,27 +86,27 @@ namespace Wise_Owl_Library.Services
                     AddPriceChange(book, updatedBook.Price);
                 }
 
-                UpdateBookDetails(book, updatedBook);
+                book.Title = updatedBook.Title;
+                book.Price = updatedBook.Price;
+                book.Stock = updatedBook.Stock;
+                book.Authors = updatedBook.Authors.Select(a => new Author { Name = a.Name }).ToList();
 
                 context.Entry(book).State = EntityState.Modified;
                 await context.SaveChangesAsync();
 
-                return true;
+                return book;
             }
             catch (DbUpdateConcurrencyException)
             {
                 if (!await BookExistsAsync(id))
                 {
-                    return false;
+                    return null;
                 }
-                else
-                {
-                    throw;
-                }
+                throw;
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Error updating book.");
+                logger.LogError(ex, "Error updating book with ID {BookId}.", id);
                 throw;
             }
         }
@@ -140,7 +128,7 @@ namespace Wise_Owl_Library.Services
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Error deleting book.");
+                logger.LogError(ex, "Error updating book with ID {BookId}.", id);
                 throw;
             }
         }
@@ -165,14 +153,6 @@ namespace Wise_Owl_Library.Services
                 ChangeDate = DateTimeOffset.UtcNow
             };
             context.PriceChanges.Add(priceChange);
-        }
-
-        private static void UpdateBookDetails(Book book, Book updatedBook)
-        {
-            book.Title = updatedBook.Title;
-            book.Price = updatedBook.Price;
-            book.Stock = updatedBook.Stock;
-            book.Authors = updatedBook.Authors.Select(a => new Author { Name = a.Name }).ToList();
         }
     }
 }

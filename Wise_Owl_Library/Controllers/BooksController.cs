@@ -16,7 +16,7 @@ namespace Wise_Owl_Library.Controllers
         {
             IEnumerable<Book> books = await bookService.GetBooksAsync(title, stock);
 
-            return Ok(!books.Any() ? new List<BookDto>() : books.Select(book => book.ToDto()).ToList());
+            return Ok(!books.Any() ? [] : books.Select(book => book.ToDto()).ToList());
         }
 
         // GET: api/Books/5
@@ -60,7 +60,7 @@ namespace Wise_Owl_Library.Controllers
 
             Book updatedBook = updateBookDto.ToBook();
 
-            if (!await bookService.UpdateBookAsync(id, updatedBook))
+            if (await bookService.UpdateBookAsync(id, updatedBook) == null)
             {
                 return NotFound(new { message = $"Book with ID {id} not found." });
             }

@@ -28,10 +28,10 @@ namespace Wise_Owl_Library.Tests
         {
             // Arrange
             var books = new List<Book>
-                {
-                    new() { Id = 1, Title = "Book 1", Price = 10.99m, Stock = 5, Authors = [new Author { Name = "Author 1" }] },
-                    new() { Id = 2, Title = "Book 2", Price = 15.99m, Stock = 3, Authors = [new Author { Name = "Author 2" }] }
-                };
+                    {
+                        new() { Id = 1, Title = "Book 1", Price = 10.99m, Stock = 5, Authors = [new Author { Name = "Author 1" }] },
+                        new() { Id = 2, Title = "Book 2", Price = 15.99m, Stock = 3, Authors = [new Author { Name = "Author 2" }] }
+                    };
             _mockBookService.Setup(service => service.GetBooksAsync(null, null)).ReturnsAsync(books);
 
             // Act
@@ -64,10 +64,10 @@ namespace Wise_Owl_Library.Tests
         {
             // Arrange
             var createBookDtos = new List<CreateBookDto>
-                {
-                    new() { Title = "Book 1", Price = 10.99m, Stock = 5, Authors = [new AuthorDto { Name = "Author 1" }] },
-                    new() { Title = "Book 2", Price = 15.99m, Stock = 3, Authors = [new AuthorDto { Name = "Author 2" }] }
-                };
+                    {
+                        new() { Title = "Book 1", Price = 10.99m, Stock = 5, Authors = [new() { Name = "Author 1" }] },
+                        new() { Title = "Book 2", Price = 15.99m, Stock = 3, Authors = [new() { Name = "Author 2" }] }
+                    };
             var books = createBookDtos.Select(dto => new Book
             {
                 Title = dto.Title,
@@ -90,8 +90,8 @@ namespace Wise_Owl_Library.Tests
         public async Task PutBook_ReturnsOkResult_WhenBookIsUpdated()
         {
             // Arrange
-            var updateBookDto = new UpdateBookDto { Id = 1, Title = "Updated Book", Price = 12.99m, Stock = 7, Authors = [new() { Name = "Updated Author" }] };
-            _mockBookService.Setup(service => service.UpdateBookAsync(1, It.IsAny<Book>())).ReturnsAsync(true);
+            var updateBookDto = new UpdateBookDto { Id = 1, Title = "Updated Book", Price = 12.99m, Stock = 7, Authors = [new AuthorDto { Name = "Updated Author" }] };
+            _mockBookService.Setup(service => service.UpdateBookAsync(1, It.IsAny<Book>())).ReturnsAsync(new Book { Title = "Updated Book" });
 
             // Act
             var result = await _controller.PutBook(1, updateBookDto);
@@ -115,8 +115,6 @@ namespace Wise_Owl_Library.Tests
             Assert.IsType<NoContentResult>(result);
         }
 
-        
-
         [Fact]
         public async Task PostBooks_ReturnsBadRequest_WhenModelStateIsInvalid()
         {
@@ -131,13 +129,12 @@ namespace Wise_Owl_Library.Tests
             Assert.IsType<SerializableError>(badRequestResult.Value);
         }
 
-
         [Fact]
         public async Task PutBook_ReturnsBadRequest_WhenModelStateIsInvalid()
         {
             // Arrange
             _controller.ModelState.AddModelError("Title", "Required");
-            var updateBookDto = new UpdateBookDto { Id = 1, Title = "Updated Book", Price = 12.99m, Stock = 7, Authors = [new() { Name = "Updated Author" }] };
+            var updateBookDto = new UpdateBookDto { Id = 1, Title = "Updated Book", Price = 12.99m, Stock = 7, Authors = [new AuthorDto { Name = "Updated Author" }] };
 
             // Act
             var result = await _controller.PutBook(1, updateBookDto);
@@ -168,7 +165,7 @@ namespace Wise_Owl_Library.Tests
         {
             // Arrange
             var updateBookDto = new UpdateBookDto { Id = 1, Title = "Updated Book", Price = 12.99m, Stock = 7, Authors = [new() { Name = "Updated Author" }] };
-            _mockBookService.Setup(service => service.UpdateBookAsync(It.IsAny<int>(), It.IsAny<Book>())).ReturnsAsync(false);
+            _mockBookService.Setup(service => service.UpdateBookAsync(It.IsAny<int>(), It.IsAny<Book>())).ReturnsAsync((Book?)null);
 
             // Act
             var result = await _controller.PutBook(1, updateBookDto);
