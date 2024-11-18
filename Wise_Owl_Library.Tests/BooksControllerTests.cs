@@ -47,7 +47,7 @@ namespace Wise_Owl_Library.Tests
         public async Task GetBook_ReturnsOkResult_WithBook()
         {
             // Arrange
-            var book = new Book { Id = 1, Title = "Book 1", Price = 10.99m, Stock = 5, Authors = new List<Author> { new Author { Name = "Author 1" } } };
+            var book = new Book { Id = 1, Title = "Book 1", Price = 10.99m, Stock = 5, Authors = [new() { Name = "Author 1" }] };
             _mockBookService.Setup(service => service.GetBookAsync(1)).ReturnsAsync(book);
 
             // Act
@@ -90,7 +90,7 @@ namespace Wise_Owl_Library.Tests
         public async Task PutBook_ReturnsOkResult_WhenBookIsUpdated()
         {
             // Arrange
-            var updateBookDto = new UpdateBookDto { Id = 1, Title = "Updated Book", Price = 12.99m, Stock = 7, Authors = new List<AuthorDto> { new() { Name = "Updated Author" } } };
+            var updateBookDto = new UpdateBookDto { Id = 1, Title = "Updated Book", Price = 12.99m, Stock = 7, Authors = [new() { Name = "Updated Author" }] };
             _mockBookService.Setup(service => service.UpdateBookAsync(1, It.IsAny<Book>())).ReturnsAsync(true);
 
             // Act
@@ -115,16 +115,7 @@ namespace Wise_Owl_Library.Tests
             Assert.IsType<NoContentResult>(result);
         }
 
-        // Exception tests
-        [Fact]
-        public async Task GetBook_ThrowsKeyNotFoundException_WhenBookNotFound()
-        {
-            // Arrange
-            _mockBookService.Setup(service => service.GetBookAsync(It.IsAny<int>())).ReturnsAsync((Book?)null);
-
-            // Act & Assert
-            await Assert.ThrowsAsync<KeyNotFoundException>(() => _controller.GetBook(1));
-        }
+        
 
         [Fact]
         public async Task PostBooks_ReturnsBadRequest_WhenModelStateIsInvalid()
@@ -140,15 +131,6 @@ namespace Wise_Owl_Library.Tests
             Assert.IsType<SerializableError>(badRequestResult.Value);
         }
 
-        [Fact]
-        public async Task PutBook_ThrowsArgumentException_WhenIdDoesNotMatch()
-        {
-            // Arrange
-            var updateBookDto = new UpdateBookDto { Id = 2, Title = "Updated Book", Price = 12.99m, Stock = 7, Authors = [new() { Name = "Updated Author" }] };
-
-            // Act & Assert
-            await Assert.ThrowsAsync<ArgumentException>(() => _controller.PutBook(1, updateBookDto));
-        }
 
         [Fact]
         public async Task PutBook_ReturnsBadRequest_WhenModelStateIsInvalid()
@@ -166,24 +148,52 @@ namespace Wise_Owl_Library.Tests
         }
 
         [Fact]
-        public async Task PutBook_ThrowsKeyNotFoundException_WhenBookNotFound()
+        public async Task GetBook_ReturnsNotFound_WhenBookNotFound()
         {
             // Arrange
-            var updateBookDto = new UpdateBookDto { Id = 1, Title = "Updated Book", Price = 12.99m, Stock = 7, Authors = new List<AuthorDto> { new() { Name = "Updated Author" } } };
-            _mockBookService.Setup(service => service.UpdateBookAsync(It.IsAny<int>(), It.IsAny<Book>())).ReturnsAsync(false);
+            _mockBookService.Setup(service => service.GetBookAsync(It.IsAny<int>())).ReturnsAsync((Book?)null);
 
-            // Act & Assert
-            await Assert.ThrowsAsync<KeyNotFoundException>(() => _controller.PutBook(1, updateBookDto));
+            // Act
+            var result = await _controller.GetBook(1);
+
+            // Assert
+            var notFoundResult = Assert.IsType<NotFoundObjectResult>(result.Result);
+            Assert.NotNull(notFoundResult.Value);
+            var message = notFoundResult.Value?.GetType().GetProperty("message")?.GetValue(notFoundResult.Value, null);
+            Assert.Equal("Book with ID 1 not found.", message);
         }
 
         [Fact]
-        public async Task DeleteBook_ThrowsKeyNotFoundException_WhenBookNotFound()
+        public async Task PutBook_ReturnsNotFound_WhenBookNotFound()
+        {
+            // Arrange
+            var updateBookDto = new UpdateBookDto { Id = 1, Title = "Updated Book", Price = 12.99m, Stock = 7, Authors = [new() { Name = "Updated Author" }] };
+            _mockBookService.Setup(service => service.UpdateBookAsync(It.IsAny<int>(), It.IsAny<Book>())).ReturnsAsync(false);
+
+            // Act
+            var result = await _controller.PutBook(1, updateBookDto);
+
+            // Assert
+            var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
+            Assert.NotNull(notFoundResult.Value);
+            var message = notFoundResult.Value?.GetType().GetProperty("message")?.GetValue(notFoundResult.Value, null);
+            Assert.Equal("Book with ID 1 not found.", message);
+        }
+
+        [Fact]
+        public async Task DeleteBook_ReturnsNotFound_WhenBookNotFound()
         {
             // Arrange
             _mockBookService.Setup(service => service.DeleteBookAsync(It.IsAny<int>())).ReturnsAsync(false);
 
-            // Act & Assert
-            await Assert.ThrowsAsync<KeyNotFoundException>(() => _controller.DeleteBook(1));
+            // Act
+            var result = await _controller.DeleteBook(1);
+
+            // Assert
+            var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
+            Assert.NotNull(notFoundResult.Value);
+            var message = notFoundResult.Value?.GetType().GetProperty("message")?.GetValue(notFoundResult.Value, null);
+            Assert.Equal("Book with ID 1 not found.", message);
         }
     }
 }

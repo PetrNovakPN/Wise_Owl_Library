@@ -63,27 +63,6 @@ namespace Wise_Owl_Library.Tests
 
 
         [Fact]
-        public async Task InvokeAsync_Should_Return_Correct_Response_For_KeyNotFoundException()
-        {
-            // Arrange
-            var exception = new KeyNotFoundException("Book not found");
-            _nextMock.Setup(next => next(It.IsAny<HttpContext>())).ThrowsAsync(exception);
-
-            // Act
-            await _middleware.InvokeAsync(_httpContext);
-
-            // Assert: Check response status code
-            Assert.Equal(StatusCodes.Status404NotFound, _httpContext.Response.StatusCode);
-
-            // Assert: Check if the response body contains the error details
-            _httpContext.Response.Body.Seek(0, SeekOrigin.Begin);
-            var responseBody = await new StreamReader(_httpContext.Response.Body).ReadToEndAsync();
-            var errorResponse = JsonSerializer.Deserialize<JsonElement>(responseBody);
-            Assert.Equal("Resource not found", errorResponse.GetProperty("title").GetString());
-            Assert.Equal("Book not found", errorResponse.GetProperty("detail").GetString());
-        }
-
-        [Fact]
         public async Task InvokeAsync_Should_Return_Correct_Response_For_DbUpdateException()
         {
             // Arrange

@@ -160,10 +160,9 @@ namespace Wise_Owl_Library.Services
             PriceChange priceChange = new()
             {
                 BookId = book.Id,
-                Book = book,
                 OldPrice = book.Price,
                 NewPrice = newPrice,
-                ChangeDate = DateTime.UtcNow
+                ChangeDate = DateTimeOffset.UtcNow
             };
             context.PriceChanges.Add(priceChange);
         }

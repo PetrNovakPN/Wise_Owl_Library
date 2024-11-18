@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Wise_Owl_Library.Data.Dto.Requests;
 
 namespace Wise_Owl_Library.Models
 {
@@ -21,5 +22,18 @@ namespace Wise_Owl_Library.Models
         [Required(ErrorMessage = "At least one author is required.")]
         [MinLength(1, ErrorMessage = "At least one author is required.")]
         public List<Author> Authors { get; set; } = [];
+    }
+    public static class BookExtensions
+    {
+        public static CreateBookDto ToCreateBookDto(this Book book)
+        {
+            return new CreateBookDto
+            {
+                Title = book.Title,
+                Price = book.Price,
+                Stock = book.Stock,
+                Authors = book.Authors.Select(a => new AuthorDto { Name = a.Name }).ToList()
+            };
+        }
     }
 }

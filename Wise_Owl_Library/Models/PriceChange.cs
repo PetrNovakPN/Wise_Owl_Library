@@ -6,7 +6,6 @@ namespace Wise_Owl_Library.Models
     {
         public int Id { get; set; }
         public int BookId { get; set; }
-        public required Book Book { get; set; }
 
         [Column(TypeName = "decimal(18,2)")]
         public decimal OldPrice { get; set; }
