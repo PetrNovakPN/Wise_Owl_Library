@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Wise_Owl_Library.Data.Dto;
 using Wise_Owl_Library.Data.Dto.Requests;
-using Wise_Owl_Library.Interfaces;
 using Wise_Owl_Library.Models;
+using Wise_Owl_Library.Services;
 
 namespace Wise_Owl_Library.Controllers
 {
@@ -12,41 +12,46 @@ namespace Wise_Owl_Library.Controllers
     {
         // GET: api/Books
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<BookDto>>> GetBooks(string? title = null, int? stock = null)
+        public async Task<ActionResult<BookDto[]>> GetBooks(string? title = null, int? stock = null)
         {
-            IEnumerable<Book> books = await bookService.GetBooksAsync(title, stock);
+            List<Book> books = await bookService.GetBooksAsync(title, stock);
 
-            return Ok(!books.Any() ? [] : books.Select(book => book.ToDto()).ToList());
+            if(books.Count == 0)
+            {
+                return NoContent();
+            }
+
+            return Ok(books/*books.Select(book => book.ToDto()).ToArray()*/);
         }
 
         // GET: api/Books/5
         [HttpGet("{id}")]
         public async Task<ActionResult<BookDto>> GetBook(int id)
         {
-            Book? book = await bookService.GetBookAsync(id);
+            BookDto? book = await bookService.GetBookAsync(id);
 
             if (book == null)
             {
                 return NotFound(new { message = $"Book with ID {id} not found." });
             }
 
-            return Ok(book.ToDto());
+            return Ok(book);
         }
 
         // POST: api/Books
         [HttpPost]
-        public async Task<ActionResult<IEnumerable<BookDto>>> PostBooks([FromBody] List<CreateBookDto> createBookDetails)
+        public async Task<ActionResult<BookDto[]>> PostBooks([FromBody] List<CreateBookDto> createBookDtos)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            List<Book> books = createBookDetails.Select(dto => dto.ToBook()).ToList();
+            //List<Book> books = createBookDtos.Select(dto => dto.ToBook()).ToList();
 
-            IEnumerable<Book> createdBooks = await bookService.CreateBooksAsync(books);
+            List<Book> createdBooks = await bookService.CreateBooksAsync(createBookDtos);
 
-            return Ok(createdBooks.Select(book => book.ToDto()).ToList());
+            return Ok(createdBooks/*.Select(book => book.ToDto()).ToList()*/);
         }
 
         // PUT: api/Books/5
@@ -58,12 +63,15 @@ namespace Wise_Owl_Library.Controllers
                 return BadRequest(ModelState);
             }
 
-            Book updatedBook = updateBookDto.ToBook();
-
-            if (await bookService.UpdateBookAsync(id, updatedBook) == null)
+            //Book updatedBook = updateBookDto.ToBook();
+            if (await bookService.UpdateBookAsync(updateBookDto) == null)
             {
-                return NotFound(new { message = $"Book with ID {id} not found." });
+                return null;//wasnt updated;
             }
+            //if ()
+            //{
+            //    return NotFound(new { message = $"Book with ID {id} not found." });
+            //}
 
             return Ok(new { message = "The book was successfully updated." });
         }

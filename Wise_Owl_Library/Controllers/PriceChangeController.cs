@@ -1,18 +1,19 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Wise_Owl_Library.Data.Dto;
-using Wise_Owl_Library.Interfaces;
+using Wise_Owl_Library.Extensions;
 using Wise_Owl_Library.Models;
+using Wise_Owl_Library.Services;
 
 namespace Wise_Owl_Library.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class PriceChangeController(IPriceChangeService priceChangeService, IBookService bookService) : ControllerBase
+    public class PriceChangeController(IPriceChangeService priceChangeService) : ControllerBase
     {
 
         // GET: api/PriceChange
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<PriceChangeDto>>> GetPriceChanges()
+        [HttpGet] 
+        public async Task<ActionResult<PriceChangeDto[]>> GetPriceChanges()
         {
             List<PriceChange> priceChanges = await priceChangeService.GetPriceChangesAsync();
 
@@ -21,20 +22,7 @@ namespace Wise_Owl_Library.Controllers
                 return NoContent();
             }
 
-            List<PriceChangeDto> priceChangeDetails = [];
-
-            foreach (PriceChange pc in priceChanges)
-            {
-                Book? book = await bookService.GetBookAsync(pc.BookId);
-                if (book == null)
-                {
-                    return NotFound(new { message = $"Book with ID {pc.BookId} not found." });
-                }
-
-                priceChangeDetails.Add(book.ToPriceChangeDto(pc.OldPrice, pc.NewPrice));
-            }
-
-            return Ok(priceChangeDetails);
+            return Ok(priceChanges.Select(p => p.ToPriceChangeDto()).ToArray());
         }
     }
 }

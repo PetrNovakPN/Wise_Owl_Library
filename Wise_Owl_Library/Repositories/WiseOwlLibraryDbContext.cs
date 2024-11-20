@@ -1,13 +1,13 @@
 ﻿using Wise_Owl_Library.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace Wise_Owl_Library.Data
+namespace Wise_Owl_Library.Repositories
 {
-    public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
+    public class WiseOwlLibraryDbContext(DbContextOptions<WiseOwlLibraryDbContext> options) : DbContext(options)
     {
-        public DbSet<Author> Authors { get; set; }
-        public DbSet<Book> Books { get; set; }
-        public DbSet<PriceChange> PriceChanges { get; set; }
+        public required DbSet<Author> Authors { get; set; }
+        public required DbSet<Book> Books { get; set; }
+        public required DbSet<PriceChange> PriceChanges { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

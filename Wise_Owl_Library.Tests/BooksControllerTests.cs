@@ -6,9 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 using Wise_Owl_Library.Controllers;
 using Wise_Owl_Library.Data.Dto;
 using Wise_Owl_Library.Data.Dto.Requests;
-using Wise_Owl_Library.Interfaces;
 using Wise_Owl_Library.Models;
 using Xunit;
+using Wise_Owl_Library.Services;
 
 namespace Wise_Owl_Library.Tests
 {

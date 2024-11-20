@@ -1,11 +1,13 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Wise_Owl_Library.Models
 {
     public class PriceChange
     {
         public int Id { get; set; }
-        public int BookId { get; set; }
+
+        public required Book Book { get; set; }
 
         [Column(TypeName = "decimal(18,2)")]
         public decimal OldPrice { get; set; }

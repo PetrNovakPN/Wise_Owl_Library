@@ -7,8 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Wise_Owl_Library.Controllers;
 using Wise_Owl_Library.Data.Dto;
-using Wise_Owl_Library.Interfaces;
 using Wise_Owl_Library.Models;
+using Wise_Owl_Library.Services;
 
 namespace Wise_Owl_Library.Tests
 {

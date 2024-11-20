@@ -10,7 +10,6 @@ namespace Wise_Owl_Library.Models
         [StringLength(50, ErrorMessage = "Name length can't be more than 50 characters.")]
         public required string Name { get; set; }
 
-        [Required]
-        public List<Book> Books { get; set; } = [];
+        public required List<Book> Books { get; set; } = [];
     }
 }
