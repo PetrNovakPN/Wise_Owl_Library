@@ -1,7 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Wise_Owl_Library.Data.Dto;
-using Wise_Owl_Library.Data.Dto.Requests;
-using Wise_Owl_Library.Extensions;
+﻿using Wise_Owl_Library.Extensions;
 using Wise_Owl_Library.Models;
 using Wise_Owl_Library.Repositories;
 
@@ -10,9 +7,9 @@ namespace Wise_Owl_Library.Services
     public interface IBookService
     {
         Task<List<Book>> GetBooksAsync(string? title = null, int? stock = null);
-        Task<BookDto?> GetBookAsync(int id);
+        Task<Book?> GetBookAsync(int id);
         Task<List<Book>> CreateBooksAsync(List<Book> books);
-        Task<Book?> UpdateBookAsync(int id, Book updatedBook);
+        Task<Book?> UpdateBookAsync(Book updatedBook);
         Task<bool> DeleteBookAsync(int id);
     }
 
@@ -47,14 +44,14 @@ namespace Wise_Owl_Library.Services
             //}
         }
 
-        public async Task<BookDto?> GetBookAsync(int id)
+        public async Task<Book?> GetBookAsync(int id)
         {
             Book? book = await bookRepository.GetBookAsync(id);
-            if(book == null)
+            if (book == null)
             {
                 return null;
             }
-            return book.ToBookDto();
+            return book;
             //try
             //{
             //    return await context.Books
@@ -68,87 +65,102 @@ namespace Wise_Owl_Library.Services
             //}
         }
 
-        public async Task<List<BookDto>> CreateBooksAsync(List<BookDto> books)
+        public async Task<List<Book>> CreateBooksAsync(List<Book> books)
         {
-            List<BookDto> createdBooks = [];
+            List<Book> booksToCreate = [];
 
-            foreach (BookDto book in books)
+            foreach (Book book in books)
             {
+                //tady by možná bylo efektivnější si je poslat všechny do db layeru a až tam si je kontrolovat jestli existují, mohlo by to být méně náročný
                 if (!await BookExistsAsync(book.Title, book.Authors))
                 {
-                    context.Books.Add(book);
-                    createdBooks.Add(book);
+                    
+                    booksToCreate.Add(book);
                 }
             }
+            List<Book> createdBooks = await bookRepository.AddBooksAsync(booksToCreate);
+            if (createdBooks == null)
+            {
+                return [];
+            }
 
-            await context.SaveChangesAsync();
+            //await context.SaveChangesAsync();
             return createdBooks;
         }
 
-        public async Task<Book?> UpdateBookAsync(int id, Book updatedBook)
+        public async Task<Book?> UpdateBookAsync(Book updatedBook)
         {
-            try
+            Book? book = await bookRepository.UpdateBookAsync(updatedBook);
+            if (book == null)
             {
-                Book? book = await context.Books
-                    .Include(b => b.Authors)
-                    .FirstOrDefaultAsync(b => b.Id == id);
-
-                if (book == null)
-                {
-                    return null;
-                }
-
-                if (book.Price != updatedBook.Price)
-                {
-                    AddPriceChange(book, updatedBook.Price);
-                }
-
-                book.Title = updatedBook.Title;
-                book.Price = updatedBook.Price;
-                book.Stock = updatedBook.Stock;
-                book.Authors = updatedBook.Authors.Select(a => new Author { Name = a.Name }).ToList();
-
-                context.Entry(book).State = EntityState.Modified;
-                await context.SaveChangesAsync();
-
-                return book;
+                return null;
             }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!await BookExistsAsync(id))
-                {
-                    return null;
-                }
-                throw;
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error updating book with ID {BookId}.", id);
-                throw;
-            }
+            return book;
+
+
+            //try
+            //{
+            //    Book? book = await context.Books
+            //        .Include(b => b.Authors)
+            //        .FirstOrDefaultAsync(b => b.Id == id);
+
+            //    if (book == null)
+            //    {
+            //        return null;
+            //    }
+
+            //    if (book.Price != updatedBook.Price)
+            //    {
+            //        AddPriceChange(book, updatedBook.Price);
+            //    }
+
+            //    book.Title = updatedBook.Title;
+            //    book.Price = updatedBook.Price;
+            //    book.Stock = updatedBook.Stock;
+            //    book.Authors = updatedBook.Authors.Select(a => new Author { Name = a.Name }).ToList();
+
+            //    context.Entry(book).State = EntityState.Modified;
+            //    await context.SaveChangesAsync();
+
+            //    return book;
+            //}
+            //catch (DbUpdateConcurrencyException)
+            //{
+            //    if (!await BookExistsAsync(id))
+            //    {
+            //        return null;
+            //    }
+            //    throw;
+            //}
+            //catch (Exception ex)
+            //{
+            //    logger.LogError(ex, "Error updating book with ID {BookId}.", id);
+            //    throw;
+            //}
         }
 
         public async Task<bool> DeleteBookAsync(int id)
         {
-            try
-            {
-                Book? book = await context.Books.FindAsync(id);
-                if (book == null)
-                {
-                    return false;
-                }
+            return await bookRepository.DeleteBookAsync(id);
+            //try
+            //{
+            //    Book? book = await context.Books.FindAsync(id);
+            //    if (book == null)
+            //    {
+            //        return false;
+            //    }
 
-                context.Books.Remove(book);
-                await context.SaveChangesAsync();
+            //    context.Books.Remove(book);
+            //    await context.SaveChangesAsync();
 
-                return true;
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Error updating book with ID {BookId}.", id);
-                throw;
+            //    return true;
+            //}
+            //catch (Exception ex)
+            //{
+            //    logger.LogError(ex, "Error updating book with ID {BookId}.", id);
+            //    throw;
 
-            }
+            //}
         }
 
         private async Task<bool> BookExistsAsync(string title, List<Author> authorNames)
@@ -165,16 +177,16 @@ namespace Wise_Owl_Library.Services
             return await bookRepository.BookExistsByIdAsync(id);
         }
 
-        private void AddPriceChange(Book book, decimal newPrice)
-        {
-            PriceChange priceChange = new()
-            {
-                BookId = book.Id,
-                OldPrice = book.Price,
-                NewPrice = newPrice,
-                ChangeDate = DateTimeOffset.UtcNow
-            };
-            context.PriceChanges.Add(priceChange);
-        }
+        //private void AddPriceChange(Book book, decimal newPrice)
+        //{
+        //    PriceChange priceChange = new()
+        //    {
+        //        BookId = book.Id,
+        //        OldPrice = book.Price,
+        //        NewPrice = newPrice,
+        //        ChangeDate = DateTimeOffset.UtcNow
+        //    };
+        //    context.PriceChanges.Add(priceChange);
+        //}
     }
 }

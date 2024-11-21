@@ -8,20 +8,30 @@ namespace Wise_Owl_Library.Repositories
     {
         Task<List<Book>> GetBooksAsync(string? title, int? stock);
         Task<Book> GetBookAsync(int id);
-        Task<Book> AddBookAsync(Book book);
+        Task<List<Book>> AddBooksAsync(List<Book> books);
         Task<Book> UpdateBookAsync(Book book);
-        Task DeleteBookAsync(int id);
+        Task<bool> DeleteBookAsync(int id);
         Task<bool> BookExistsAsync(string title, List<Author> authorNames);
         Task<bool> BookExistsByIdAsync(int id);
     }
     public class BookSqlRepository(WiseOwlLibraryDbContext wiseOwlLibraryDbContext) : IBookRepository
     {
-        public Task<Book> AddBookAsync(Book book)
+        public async Task<List<Book>> AddBooksAsync(List<Book> books)
         {
-            throw new NotImplementedException();
+            List<Book> createdBooks = new List<Book>();
+            foreach (Book book in books)
+            {
+                if(await wiseOwlLibraryDbContext.Books.AddAsync(book) != null)
+                {
+                    createdBooks.Add(book);
+                }
+            }
+            await wiseOwlLibraryDbContext.SaveChangesAsync();
+
+            return createdBooks;
         }
 
-        public Task DeleteBookAsync(int id)
+        public Task<bool> DeleteBookAsync(int id)
         {
             throw new NotImplementedException();
         }
