@@ -172,10 +172,10 @@ namespace Wise_Owl_Library.Services
             return await bookRepository.BookExistsAsync(title, authorNames);
         }
 
-        private async Task<bool> BookExistsAsync(int id)
-        {
-            return await bookRepository.BookExistsByIdAsync(id);
-        }
+        //private async Task<bool> BookExistsAsync(int id)
+        //{
+        //    return await bookRepository.BookExistsByIdAsync(id);
+        //}
 
         //private void AddPriceChange(Book book, decimal newPrice)
         //{

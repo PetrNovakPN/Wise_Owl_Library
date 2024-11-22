@@ -1,9 +1,8 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Wise_Owl_Library.Models
+namespace Wise_Owl_Library.Models.Entities
 {
-    public class PriceChange
+    public class PriceChangeEntity
     {
         public int Id { get; set; }
         public required Book Book { get; set; }

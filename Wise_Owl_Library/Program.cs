@@ -15,6 +15,8 @@ builder.Services.AddLogging();
 
 builder.Services.AddScoped<IPriceChangeService, PriceChangeService>();
 builder.Services.AddScoped<IBookService, BookService>();
+builder.Services.AddScoped<IBookRepository, BookSqlRepository>();
+builder.Services.AddScoped<IPriceChangeRepository, PriceChangeSqlRepository>();
 
 WebApplication app = builder.Build();
 

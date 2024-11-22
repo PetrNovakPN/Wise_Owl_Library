@@ -12,7 +12,7 @@ using Wise_Owl_Library.Repositories;
 namespace Wise_Owl_Library.Migrations
 {
     [DbContext(typeof(WiseOwlLibraryDbContext))]
-    [Migration("20241115182349_Initial")]
+    [Migration("20241122143153_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -25,21 +25,6 @@ namespace Wise_Owl_Library.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("AuthorBook", b =>
-                {
-                    b.Property<int>("AuthorsId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("BooksId")
-                        .HasColumnType("int");
-
-                    b.HasKey("AuthorsId", "BooksId");
-
-                    b.HasIndex("BooksId");
-
-                    b.ToTable("AuthorBook");
-                });
-
             modelBuilder.Entity("Wise_Owl_Library.Models.Author", b =>
                 {
                     b.Property<int>("Id")
@@ -48,6 +33,9 @@ namespace Wise_Owl_Library.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("BookId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -55,7 +43,9 @@ namespace Wise_Owl_Library.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Authors");
+                    b.HasIndex("BookId");
+
+                    b.ToTable("Author");
                 });
 
             modelBuilder.Entity("Wise_Owl_Library.Models.Book", b =>
@@ -65,6 +55,9 @@ namespace Wise_Owl_Library.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("AuthorEntityId")
+                        .HasColumnType("int");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
@@ -79,7 +72,26 @@ namespace Wise_Owl_Library.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AuthorEntityId");
+
                     b.ToTable("Books");
+                });
+
+            modelBuilder.Entity("Wise_Owl_Library.Models.Entities.AuthorEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Authors");
                 });
 
             modelBuilder.Entity("Wise_Owl_Library.Models.PriceChange", b =>
@@ -93,8 +105,8 @@ namespace Wise_Owl_Library.Migrations
                     b.Property<int>("BookId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("ChangeDate")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("ChangeDate")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<decimal>("NewPrice")
                         .HasColumnType("decimal(18,2)");
@@ -109,19 +121,18 @@ namespace Wise_Owl_Library.Migrations
                     b.ToTable("PriceChanges");
                 });
 
-            modelBuilder.Entity("AuthorBook", b =>
+            modelBuilder.Entity("Wise_Owl_Library.Models.Author", b =>
                 {
-                    b.HasOne("Wise_Owl_Library.Models.Author", null)
-                        .WithMany()
-                        .HasForeignKey("AuthorsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Wise_Owl_Library.Models.Book", null)
-                        .WithMany()
-                        .HasForeignKey("BooksId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .WithMany("Authors")
+                        .HasForeignKey("BookId");
+                });
+
+            modelBuilder.Entity("Wise_Owl_Library.Models.Book", b =>
+                {
+                    b.HasOne("Wise_Owl_Library.Models.Entities.AuthorEntity", null)
+                        .WithMany("Books")
+                        .HasForeignKey("AuthorEntityId");
                 });
 
             modelBuilder.Entity("Wise_Owl_Library.Models.PriceChange", b =>
@@ -133,6 +144,16 @@ namespace Wise_Owl_Library.Migrations
                         .IsRequired();
 
                     b.Navigation("Book");
+                });
+
+            modelBuilder.Entity("Wise_Owl_Library.Models.Book", b =>
+                {
+                    b.Navigation("Authors");
+                });
+
+            modelBuilder.Entity("Wise_Owl_Library.Models.Entities.AuthorEntity", b =>
+                {
+                    b.Navigation("Books");
                 });
 #pragma warning restore 612, 618
         }

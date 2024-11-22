@@ -6,6 +6,6 @@ namespace Wise_Owl_Library.Models.Entities
     {
         public int Id { get; set; }
         public required string Name { get; set; }
-        public required List<Book> Books { get; set; }
+        public required virtual List<BookEntity> Books { get; set; }
     }
 }
