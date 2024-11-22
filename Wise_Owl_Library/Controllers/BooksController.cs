@@ -21,9 +21,8 @@ namespace Wise_Owl_Library.Controllers
             {
                 return NoContent();
             }
-            List<BookDto> bookDtos = books.Select(book => book.ToBookDto()).ToList();
 
-            return Ok(books/*books.Select(book => book.ToDto()).ToArray()*/);
+            return Ok(books.Select(book => book.ToBookDto()).ToList());
         }
 
         // GET: api/Books/5

@@ -18,7 +18,7 @@ namespace Wise_Owl_Library.Repositories
     {
         public async Task<List<Book>> AddBooksAsync(List<Book> books)
         {
-            List<Book> createdBooks = new List<Book>();
+            List<Book> createdBooks = new();
             foreach (Book book in books)
             {
                 if(await wiseOwlLibraryDbContext.Books.AddAsync(book) != null)
@@ -31,25 +31,55 @@ namespace Wise_Owl_Library.Repositories
             return createdBooks;
         }
 
-        public Task<bool> DeleteBookAsync(int id)
+        public async Task<bool> DeleteBookAsync(int id)
         {
-            throw new NotImplementedException();
+            Book? book = await wiseOwlLibraryDbContext.Books.FindAsync(id);
+            if (book == null)
+            {
+                throw new KeyNotFoundException($"Book with Id {id} not found.");
+            }
+            if(wiseOwlLibraryDbContext.Books.Remove(book) != null)
+            {
+                await wiseOwlLibraryDbContext.SaveChangesAsync();
+                return true;
+            }
+            return false;
         }
 
-        public Task<Book> GetBookAsync(int id)
+        public async Task<Book> GetBookAsync(int id)
         {
-            throw new NotImplementedException();
+            Book? book = await wiseOwlLibraryDbContext.Books.FindAsync(id);
+            if (book == null)
+            {
+                throw new KeyNotFoundException($"Book with Id {id} not found.");
+            }
+            return book;
         }
 
-        public Task<List<Book>> GetBooksAsync(string? title, int? stock)
+        public async Task<List<Book>> GetBooksAsync(string? title, int? stock)
         {
-
-            throw new NotImplementedException();
+            List<Book> books = new();
+            if (title != null)
+            {
+                books = await wiseOwlLibraryDbContext.Books.Where(b => b.Title == title).ToListAsync();
+            }
+            else if (stock != null)
+            {
+                books = await wiseOwlLibraryDbContext.Books.Where(b => b.Stock == stock).ToListAsync();
+            }
+            else
+            {
+                books = await wiseOwlLibraryDbContext.Books.ToListAsync();
+            }
+            return books;
         }
 
-        public Task<Book> UpdateBookAsync(Book book)
+        public async Task<Book> UpdateBookAsync(Book book)
         {
-            throw new NotImplementedException();
+            Book updatedBook = wiseOwlLibraryDbContext.Books.Update(book).Entity;
+            await wiseOwlLibraryDbContext.SaveChangesAsync();
+
+            return updatedBook;
         }
 
         public async Task<bool> BookExistsAsync(string title, List<Author> authors)
@@ -60,6 +90,7 @@ namespace Wise_Owl_Library.Repositories
             }
             return false;
         }
+
         public async Task<bool> BookExistsByIdAsync(int id)
         {
             if (await wiseOwlLibraryDbContext.Books.AnyAsync(b => b.Id == id))
