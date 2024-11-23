@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using Wise_Owl_Library.Models;
+using Wise_Owl_Library.Extensions;
+using Wise_Owl_Library.Models.Entities;
 
 namespace Wise_Owl_Library.Repositories
 {
@@ -21,7 +23,7 @@ namespace Wise_Owl_Library.Repositories
             List<Book> createdBooks = new();
             foreach (Book book in books)
             {
-                if(await wiseOwlLibraryDbContext.Books.AddAsync(book) != null)
+                if(await wiseOwlLibraryDbContext.Books.AddAsync(book.ToBookEntity()) != null)
                 {
                     createdBooks.Add(book);
                 }
@@ -33,7 +35,7 @@ namespace Wise_Owl_Library.Repositories
 
         public async Task<bool> DeleteBookAsync(int id)
         {
-            Book? book = await wiseOwlLibraryDbContext.Books.FindAsync(id);
+            BookEntity? book = await wiseOwlLibraryDbContext.Books.FindAsync(id);
             if (book == null)
             {
                 throw new KeyNotFoundException($"Book with Id {id} not found.");
@@ -48,17 +50,17 @@ namespace Wise_Owl_Library.Repositories
 
         public async Task<Book> GetBookAsync(int id)
         {
-            Book? book = await wiseOwlLibraryDbContext.Books.FindAsync(id);
+            BookEntity? book = await wiseOwlLibraryDbContext.Books.FindAsync(id);
             if (book == null)
             {
                 throw new KeyNotFoundException($"Book with Id {id} not found.");
             }
-            return book;
+            return book.EntityToBook();
         }
 
         public async Task<List<Book>> GetBooksAsync(string? title, int? stock)
         {
-            List<Book> books = new();
+            List<BookEntity> books = new();
             if (title != null)
             {
                 books = await wiseOwlLibraryDbContext.Books.Where(b => b.Title == title).ToListAsync();
@@ -71,20 +73,20 @@ namespace Wise_Owl_Library.Repositories
             {
                 books = await wiseOwlLibraryDbContext.Books.ToListAsync();
             }
-            return books;
+            return books.Select(b => b.EntityToBook()).ToList();
         }
 
         public async Task<Book> UpdateBookAsync(Book book)
         {
-            Book updatedBook = wiseOwlLibraryDbContext.Books.Update(book).Entity;
+            BookEntity updatedBook = wiseOwlLibraryDbContext.Books.Update(book.ToBookEntity()).Entity;
             await wiseOwlLibraryDbContext.SaveChangesAsync();
 
-            return updatedBook;
+            return updatedBook.EntityToBook();
         }
 
         public async Task<bool> BookExistsAsync(string title, List<Author> authors)
         {
-            if (await wiseOwlLibraryDbContext.Books.AnyAsync(b => b.Title == title && b.Authors.SequenceEqual(authors)))
+            if (await wiseOwlLibraryDbContext.Books.AnyAsync(b => b.Title == title && b.Authors.SequenceEqual(authors.Select(a => a.ToAuthorEntity()))))
             {
                 return true;
             }
