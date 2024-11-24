@@ -29,6 +29,7 @@ namespace Wise_Owl_Library.Data.Dto.Requests
         {
             return new Book
             {
+                Id = updateBookDto.Id,
                 Title = updateBookDto.Title,
                 Price = updateBookDto.Price,
                 Stock = updateBookDto.Stock,

@@ -18,30 +18,6 @@ namespace Wise_Owl_Library.Services
         public async Task<List<Book>> GetBooksAsync(string? title, int? stock)
         {
             return await bookRepository.GetBooksAsync(title, stock);
-
-            //try
-            //{
-            //    IQueryable<Book> query = context.Books
-            //        .Include(b => b.Authors)
-            //        .AsQueryable();
-
-            //    if (!string.IsNullOrEmpty(title))
-            //    {
-            //        query = query.Where(b => b.Title.Contains(title));
-            //    }
-
-            //    if (stock.HasValue)
-            //    {
-            //        query = query.Where(b => b.Stock == stock.Value);
-            //    }
-
-            //    return await query.ToListAsync();
-            //}
-            //catch (Exception ex)
-            //{
-            //    logger.LogError(ex, "Error loading books.");
-            //    throw;
-            //}
         }
 
         public async Task<Book?> GetBookAsync(int id)
@@ -52,17 +28,6 @@ namespace Wise_Owl_Library.Services
                 return null;
             }
             return book;
-            //try
-            //{
-            //    return await context.Books
-            //        .Include(b => b.Authors)
-            //        .FirstOrDefaultAsync(b => b.Id == id);
-            //}
-            //catch (Exception ex)
-            //{
-            //    logger.LogError(ex, "Error loading book.");
-            //    throw;
-            //}
         }
 
         public async Task<List<Book>> CreateBooksAsync(List<Book> books)
@@ -84,7 +49,6 @@ namespace Wise_Owl_Library.Services
                 return [];
             }
 
-            //await context.SaveChangesAsync();
             return createdBooks;
         }
 
@@ -96,71 +60,11 @@ namespace Wise_Owl_Library.Services
                 return null;
             }
             return book;
-
-
-            //try
-            //{
-            //    Book? book = await context.Books
-            //        .Include(b => b.Authors)
-            //        .FirstOrDefaultAsync(b => b.Id == id);
-
-            //    if (book == null)
-            //    {
-            //        return null;
-            //    }
-
-            //    if (book.Price != updatedBook.Price)
-            //    {
-            //        AddPriceChange(book, updatedBook.Price);
-            //    }
-
-            //    book.Title = updatedBook.Title;
-            //    book.Price = updatedBook.Price;
-            //    book.Stock = updatedBook.Stock;
-            //    book.Authors = updatedBook.Authors.Select(a => new Author { Name = a.Name }).ToList();
-
-            //    context.Entry(book).State = EntityState.Modified;
-            //    await context.SaveChangesAsync();
-
-            //    return book;
-            //}
-            //catch (DbUpdateConcurrencyException)
-            //{
-            //    if (!await BookExistsAsync(id))
-            //    {
-            //        return null;
-            //    }
-            //    throw;
-            //}
-            //catch (Exception ex)
-            //{
-            //    logger.LogError(ex, "Error updating book with ID {BookId}.", id);
-            //    throw;
-            //}
         }
 
         public async Task<bool> DeleteBookAsync(int id)
         {
             return await bookRepository.DeleteBookAsync(id);
-            //try
-            //{
-            //    Book? book = await context.Books.FindAsync(id);
-            //    if (book == null)
-            //    {
-            //        return false;
-            //    }
-
-            //    context.Books.Remove(book);
-            //    await context.SaveChangesAsync();
-
-            //    return true;
-            //}
-            //catch (Exception ex)
-            //{
-            //    logger.LogError(ex, "Error updating book with ID {BookId}.", id);
-            //    throw;
-
-            //}
         }
 
         private async Task<bool> BookExistsAsync(string title, List<Author> authorNames)
@@ -168,25 +72,8 @@ namespace Wise_Owl_Library.Services
             ArgumentException.ThrowIfNullOrWhiteSpace(title, nameof(title));
             if (authorNames.Count == 0)
                 throw new ArgumentException("At least one author name is required.", nameof(authorNames));
-
-            return await bookRepository.BookExistsAsync(title, authorNames);
+            //Tady změnit
+            return false/*await bookRepository.BookExistsAsync(title, authorNames)*/;
         }
-
-        //private async Task<bool> BookExistsAsync(int id)
-        //{
-        //    return await bookRepository.BookExistsByIdAsync(id);
-        //}
-
-        //private void AddPriceChange(Book book, decimal newPrice)
-        //{
-        //    PriceChange priceChange = new()
-        //    {
-        //        BookId = book.Id,
-        //        OldPrice = book.Price,
-        //        NewPrice = newPrice,
-        //        ChangeDate = DateTimeOffset.UtcNow
-        //    };
-        //    context.PriceChanges.Add(priceChange);
-        //}
     }
 }

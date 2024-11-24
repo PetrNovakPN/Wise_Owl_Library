@@ -12,8 +12,8 @@ using Wise_Owl_Library.Repositories;
 namespace Wise_Owl_Library.Migrations
 {
     [DbContext(typeof(WiseOwlLibraryDbContext))]
-    [Migration("20241122143153_Initial")]
-    partial class Initial
+    [Migration("20241124000541_PriceChangeEntity")]
+    partial class PriceChangeEntity
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,56 +25,19 @@ namespace Wise_Owl_Library.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Wise_Owl_Library.Models.Author", b =>
+            modelBuilder.Entity("AuthorEntityBookEntity", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
+                    b.Property<int>("AuthorsId")
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("BookId")
+                    b.Property<int>("BooksId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                    b.HasKey("AuthorsId", "BooksId");
 
-                    b.HasKey("Id");
+                    b.HasIndex("BooksId");
 
-                    b.HasIndex("BookId");
-
-                    b.ToTable("Author");
-                });
-
-            modelBuilder.Entity("Wise_Owl_Library.Models.Book", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("AuthorEntityId")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("Stock")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AuthorEntityId");
-
-                    b.ToTable("Books");
+                    b.ToTable("AuthorEntityBookEntity");
                 });
 
             modelBuilder.Entity("Wise_Owl_Library.Models.Entities.AuthorEntity", b =>
@@ -94,7 +57,30 @@ namespace Wise_Owl_Library.Migrations
                     b.ToTable("Authors");
                 });
 
-            modelBuilder.Entity("Wise_Owl_Library.Models.PriceChange", b =>
+            modelBuilder.Entity("Wise_Owl_Library.Models.Entities.BookEntity", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("Stock")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Books");
+                });
+
+            modelBuilder.Entity("Wise_Owl_Library.Models.Entities.PriceChangeEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -121,39 +107,30 @@ namespace Wise_Owl_Library.Migrations
                     b.ToTable("PriceChanges");
                 });
 
-            modelBuilder.Entity("Wise_Owl_Library.Models.Author", b =>
-                {
-                    b.HasOne("Wise_Owl_Library.Models.Book", null)
-                        .WithMany("Authors")
-                        .HasForeignKey("BookId");
-                });
-
-            modelBuilder.Entity("Wise_Owl_Library.Models.Book", b =>
+            modelBuilder.Entity("AuthorEntityBookEntity", b =>
                 {
                     b.HasOne("Wise_Owl_Library.Models.Entities.AuthorEntity", null)
-                        .WithMany("Books")
-                        .HasForeignKey("AuthorEntityId");
+                        .WithMany()
+                        .HasForeignKey("AuthorsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Wise_Owl_Library.Models.Entities.BookEntity", null)
+                        .WithMany()
+                        .HasForeignKey("BooksId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
-            modelBuilder.Entity("Wise_Owl_Library.Models.PriceChange", b =>
+            modelBuilder.Entity("Wise_Owl_Library.Models.Entities.PriceChangeEntity", b =>
                 {
-                    b.HasOne("Wise_Owl_Library.Models.Book", "Book")
+                    b.HasOne("Wise_Owl_Library.Models.Entities.BookEntity", "Book")
                         .WithMany()
                         .HasForeignKey("BookId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Book");
-                });
-
-            modelBuilder.Entity("Wise_Owl_Library.Models.Book", b =>
-                {
-                    b.Navigation("Authors");
-                });
-
-            modelBuilder.Entity("Wise_Owl_Library.Models.Entities.AuthorEntity", b =>
-                {
-                    b.Navigation("Books");
                 });
 #pragma warning restore 612, 618
         }

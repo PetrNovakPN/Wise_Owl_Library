@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Wise_Owl_Library.Repositories;
 
@@ -11,9 +12,11 @@ using Wise_Owl_Library.Repositories;
 namespace Wise_Owl_Library.Migrations
 {
     [DbContext(typeof(WiseOwlLibraryDbContext))]
-    partial class WiseOwlLibraryDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241123130810_Initial")]
+    partial class Initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -35,6 +38,53 @@ namespace Wise_Owl_Library.Migrations
                     b.HasIndex("BooksId");
 
                     b.ToTable("AuthorEntityBookEntity");
+                });
+
+            modelBuilder.Entity("Wise_Owl_Library.Models.Author", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("BookId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BookId");
+
+                    b.ToTable("Author");
+                });
+
+            modelBuilder.Entity("Wise_Owl_Library.Models.Book", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("Stock")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Book");
                 });
 
             modelBuilder.Entity("Wise_Owl_Library.Models.Entities.AuthorEntity", b =>
@@ -77,7 +127,7 @@ namespace Wise_Owl_Library.Migrations
                     b.ToTable("Books");
                 });
 
-            modelBuilder.Entity("Wise_Owl_Library.Models.Entities.PriceChangeEntity", b =>
+            modelBuilder.Entity("Wise_Owl_Library.Models.PriceChange", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -119,15 +169,27 @@ namespace Wise_Owl_Library.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Wise_Owl_Library.Models.Entities.PriceChangeEntity", b =>
+            modelBuilder.Entity("Wise_Owl_Library.Models.Author", b =>
                 {
-                    b.HasOne("Wise_Owl_Library.Models.Entities.BookEntity", "Book")
+                    b.HasOne("Wise_Owl_Library.Models.Book", null)
+                        .WithMany("Authors")
+                        .HasForeignKey("BookId");
+                });
+
+            modelBuilder.Entity("Wise_Owl_Library.Models.PriceChange", b =>
+                {
+                    b.HasOne("Wise_Owl_Library.Models.Book", "Book")
                         .WithMany()
                         .HasForeignKey("BookId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Book");
+                });
+
+            modelBuilder.Entity("Wise_Owl_Library.Models.Book", b =>
+                {
+                    b.Navigation("Authors");
                 });
 #pragma warning restore 612, 618
         }

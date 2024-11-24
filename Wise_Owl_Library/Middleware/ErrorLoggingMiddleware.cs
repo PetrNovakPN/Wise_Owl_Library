@@ -22,6 +22,7 @@ namespace Wise_Owl_Library.Middleware
                     ArgumentException argEx => (StatusCodes.Status400BadRequest, "Invalid parameters", argEx.Message),
                     DbUpdateException dbEx => (StatusCodes.Status500InternalServerError, "Database error", dbEx.Message),
                     TimeoutException => (StatusCodes.Status504GatewayTimeout, "Timeout occurred", "The server took too long to process the request."),
+                    KeyNotFoundException keyNotFoundEx => (StatusCodes.Status404NotFound, "Resource not found", keyNotFoundEx.Message),
                     _ => (StatusCodes.Status500InternalServerError, "Internal server error", "An unexpected error occurred. Please contact support if the issue persists.")
                 };
 

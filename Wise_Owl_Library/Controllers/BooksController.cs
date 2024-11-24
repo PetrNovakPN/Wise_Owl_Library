@@ -19,7 +19,7 @@ namespace Wise_Owl_Library.Controllers
 
             if(books.Count == 0)
             {
-                return NoContent();
+                return Ok(new { message = "No books found." });
             }
 
             return Ok(books.Select(book => book.ToBookDto()).ToList());
@@ -68,15 +68,10 @@ namespace Wise_Owl_Library.Controllers
                 return BadRequest(ModelState);
             }
 
-            //Book updatedBook = updateBookDto.ToBook();
             if (await bookService.UpdateBookAsync(updateBookDto.ToBook()) == null)
             {
-                return null;//wasnt updated;
+                return NotFound(new { message = $"Book with ID {updateBookDto.Id} wasn't updated correctly." });
             }
-            //if ()
-            //{
-            //    return NotFound(new { message = $"Book with ID {id} not found." });
-            //}
 
             return Ok(new { message = "The book was successfully updated." });
         }
@@ -90,7 +85,7 @@ namespace Wise_Owl_Library.Controllers
                 return NotFound(new { message = $"Book with ID {id} wasn't deleted." });
             }
 
-            return true;
+            return Ok(new { message = $"Book with ID {id} was successfully deleted." });
         }
     }
 }
