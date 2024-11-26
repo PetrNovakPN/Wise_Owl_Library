@@ -1,6 +1,4 @@
-﻿using Wise_Owl_Library.Models;
-
-namespace Wise_Owl_Library.Data.Dto
+﻿namespace Wise_Owl_Library.Models.Dto
 {
     public class PriceChangeDto
     {

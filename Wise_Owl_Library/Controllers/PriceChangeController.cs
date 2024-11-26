@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Wise_Owl_Library.Data.Dto;
-using Wise_Owl_Library.Extensions;
+using Wise_Owl_Library.Extensions.PresentationExtensions;
 using Wise_Owl_Library.Models;
+using Wise_Owl_Library.Models.Dto;
 using Wise_Owl_Library.Services;
 
 namespace Wise_Owl_Library.Controllers

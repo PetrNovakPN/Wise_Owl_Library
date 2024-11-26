@@ -1,5 +1,4 @@
-﻿using Wise_Owl_Library.Models;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Wise_Owl_Library.Models.Entities;
 using Wise_Owl_Library.Repositories.Interceptors;
 

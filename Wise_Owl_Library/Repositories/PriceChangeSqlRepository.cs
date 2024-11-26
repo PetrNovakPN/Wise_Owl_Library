@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
-using Wise_Owl_Library.Extensions;
+using Wise_Owl_Library.Extensions.BusinessExtensions;
 using Wise_Owl_Library.Models;
 using Wise_Owl_Library.Models.Entities;
 
@@ -8,10 +8,6 @@ namespace Wise_Owl_Library.Repositories
 {
     public interface IPriceChangeRepository
     {
-        /// <summary>
-        /// cokoliv
-        /// </summary>
-        /// <returns></returns>
         Task<List<PriceChange>> GetPriceChangesAsync();
         Task<PriceChange> AddPriceChangeAsync(PriceChange priceChange);
         Task DeletePriceChangeAsync(int id);

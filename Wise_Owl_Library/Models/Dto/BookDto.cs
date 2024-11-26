@@ -1,7 +1,6 @@
-﻿using Wise_Owl_Library.Data.Dto.Requests;
-using Wise_Owl_Library.Models;
+﻿using Wise_Owl_Library.Models.Dto.Requests;
 
-namespace Wise_Owl_Library.Data.Dto
+namespace Wise_Owl_Library.Models.Dto
 {
     public class BookDto
     {

@@ -22,11 +22,8 @@ namespace Wise_Owl_Library.Services
 
         public async Task<Book?> GetBookAsync(int id)
         {
-            Book? book = await bookRepository.GetBookAsync(id);
-            if (book == null)
-            {
-                return null;
-            }
+            Book book = await bookRepository.GetBookAsync(id);
+            
             return book;
         }
 
@@ -44,21 +41,13 @@ namespace Wise_Owl_Library.Services
                 }
             }
             List<Book> createdBooks = await bookRepository.AddBooksAsync(booksToCreate);
-            if (createdBooks == null)
-            {
-                return [];
-            }
 
             return createdBooks;
         }
 
         public async Task<Book?> UpdateBookAsync(Book updatedBook)
         {
-            Book? book = await bookRepository.UpdateBookAsync(updatedBook);
-            if (book == null)
-            {
-                return null;
-            }
+            Book book = await bookRepository.UpdateBookAsync(updatedBook);
             return book;
         }
 
@@ -72,7 +61,7 @@ namespace Wise_Owl_Library.Services
             ArgumentException.ThrowIfNullOrWhiteSpace(title, nameof(title));
             if (authorNames.Count == 0)
                 throw new ArgumentException("At least one author name is required.", nameof(authorNames));
-            //Tady změnit
+            //TODO: odebrat false a upravit bookExists metodu
             return false/*await bookRepository.BookExistsAsync(title, authorNames)*/;
         }
     }

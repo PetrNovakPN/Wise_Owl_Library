@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Wise_Owl_Library.Data.Dto.Requests;
 
 namespace Wise_Owl_Library.Models
 {

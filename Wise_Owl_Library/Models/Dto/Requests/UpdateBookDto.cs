@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Wise_Owl_Library.Models;
 
-namespace Wise_Owl_Library.Data.Dto.Requests
+namespace Wise_Owl_Library.Models.Dto.Requests
 {
     public class UpdateBookDto
     {
