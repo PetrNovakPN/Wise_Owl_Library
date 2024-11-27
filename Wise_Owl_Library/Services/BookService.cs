@@ -23,8 +23,8 @@ namespace Wise_Owl_Library.Services
         public async Task<Book?> GetBookAsync(int id)
         {
             Book book = await bookRepository.GetBookAsync(id);
-            
-            return book;
+            //TODO: udělat to jinak než posílat prázdnej novej book
+            return book.Title == "" ? null : book;
         }
 
         public async Task<List<Book>> CreateBooksAsync(List<Book> books)

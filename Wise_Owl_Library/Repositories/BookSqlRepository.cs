@@ -60,7 +60,7 @@ namespace Wise_Owl_Library.Repositories
                 .FirstOrDefaultAsync(b => b.Id == id);
             if (book == null)
             {
-                throw new KeyNotFoundException($"Book with Id {id} not found.");
+                return new Book();
             }
             return book.ToBook();
         }
