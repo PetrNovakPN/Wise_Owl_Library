@@ -14,7 +14,15 @@ public static class BookPresentationExtensions
         Stock = book.Stock,
         Authors = book.Authors.Select(a => a.ToAuthorDto()).ToList()
     };
-    
+
+    public static Book ToBook(this BookDto book) => new()
+    {
+        Id = book.Id,
+        Title = book.Title,
+        Price = book.Price,
+        Stock = book.Stock,
+        Authors = book.Authors.Select(a => a.ToAuthor()).ToList()
+    };
     public static Book ToBook(this CreateBookDto createBookDto) => new()
     {
         Title = createBookDto.Title,
@@ -22,4 +30,14 @@ public static class BookPresentationExtensions
         Stock = createBookDto.Stock,
         Authors = createBookDto.Authors.Select(a => a.ToAuthor()).ToList()
     };
+    
+    public static Book ToBook(this UpdateBookDto updateBookDto) => new()
+    {
+        Id = updateBookDto.Id,
+        Title = updateBookDto.Title,
+        Price = updateBookDto.Price,
+        Stock = updateBookDto.Stock,
+        Authors = updateBookDto.Authors.Select(a => new Author { Name = a.Name }).ToList()
+    };
+    
 }

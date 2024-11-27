@@ -44,14 +44,12 @@ namespace Wise_Owl_Library.Repositories
             BookEntity? book = await wiseOwlLibraryDbContext.Books.FindAsync(id);
             if (book == null)
             {
-                throw new KeyNotFoundException($"Book with Id {id} not found.");
+                return false;
             }
-            if(wiseOwlLibraryDbContext.Books.Remove(book) != null)
-            {
-                await wiseOwlLibraryDbContext.SaveChangesAsync();
-                return true;
-            }
-            return false;
+
+            wiseOwlLibraryDbContext.Books.Remove(book);
+            await wiseOwlLibraryDbContext.SaveChangesAsync();
+            return true; 
         }
 
         public async Task<Book> GetBookAsync(int id)
@@ -99,7 +97,7 @@ namespace Wise_Owl_Library.Repositories
             bookEntity.Title = book.Title;
             bookEntity.Price = book.Price;
             bookEntity.Stock = book.Stock;
-            bookEntity.Authors = book.Authors.Select(a => new AuthorEntity { Id = a.Id, Name = a.Name }).ToList();
+            bookEntity.Authors = book.Authors.Select(a => a.ToAuthorEntity()).ToList();
 
             wiseOwlLibraryDbContext.Entry(bookEntity).State = EntityState.Modified;
             await wiseOwlLibraryDbContext.SaveChangesAsync();
@@ -109,11 +107,20 @@ namespace Wise_Owl_Library.Repositories
 
         public async Task<bool> BookExistsAsync(string title, List<Author> authors)
         {
-            if (await wiseOwlLibraryDbContext.Books.AnyAsync(b => b.Title == title && b.Authors.SequenceEqual(authors.Select(a => a.ToAuthorEntity()))))
-            {
-                return true;
-            }
-            return false;
+            return await wiseOwlLibraryDbContext.Books
+                .Where(b => b.Title == title)
+                .AnyAsync(b =>
+                        b.Authors.Count == authors.Count &&
+                        !b.Authors
+                            .Select(a => a.Id)
+                            .Except(authors.Select(a => a.ToAuthorEntity().Id))
+                            .Any() &&
+                        !authors
+                            .Select(a => a.ToAuthorEntity().Id)
+                            .Except(b.Authors.Select(a => a.Id))
+                            .Any()
+                );
+            // return await wiseOwlLibraryDbContext.Books.AnyAsync(b => b.Title == title && b.Authors.SequenceEqual(authors.Select(a => a.ToAuthorEntity())));
         }
 
         public async Task<bool> BookExistsByIdAsync(int id)

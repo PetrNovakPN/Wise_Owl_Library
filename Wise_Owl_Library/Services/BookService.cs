@@ -33,7 +33,7 @@ namespace Wise_Owl_Library.Services
 
             foreach (Book book in books)
             {
-                //tady by možná bylo efektivnější si je poslat všechny do db layeru a až tam si je kontrolovat jestli existují, mohlo by to být méně náročný
+                //TODO: tady by možná bylo efektivnější si je poslat všechny do db layeru a až tam si je kontrolovat jestli existují, mohlo by to být méně náročný
                 if (!await BookExistsAsync(book.Title, book.Authors))
                 {
                     
@@ -61,8 +61,8 @@ namespace Wise_Owl_Library.Services
             ArgumentException.ThrowIfNullOrWhiteSpace(title, nameof(title));
             if (authorNames.Count == 0)
                 throw new ArgumentException("At least one author name is required.", nameof(authorNames));
-            //TODO: odebrat false a upravit bookExists metodu
-            return false/*await bookRepository.BookExistsAsync(title, authorNames)*/;
+            
+            return await bookRepository.BookExistsAsync(title, authorNames);
         }
     }
 }

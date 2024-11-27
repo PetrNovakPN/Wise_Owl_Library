@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Wise_Owl_Library.Validation;
 
 namespace Wise_Owl_Library.Models.Dto.Requests
 {
@@ -9,6 +10,7 @@ namespace Wise_Owl_Library.Models.Dto.Requests
 
         [Required(ErrorMessage = "Title is required.")]
         [StringLength(100, ErrorMessage = "Title length can't be more than 100 characters.")]
+        [NoEmptyOrExcessiveSpaces(ErrorMessage = "Title cannot contain multiple consecutive spaces or start/end with spaces.")]
         public required string Title { get; set; }
 
         [Range(0.0, double.MaxValue, ErrorMessage = "Price must be a positive value.")]
@@ -21,20 +23,4 @@ namespace Wise_Owl_Library.Models.Dto.Requests
         [MinLength(1, ErrorMessage = "At least one author is required.")]
         public required List<AuthorDto> Authors { get; set; }
     }
-
-    public static class UpdateBookDtoExtensions
-    {
-        public static Book ToBook(this UpdateBookDto updateBookDto)
-        {
-            return new Book
-            {
-                Id = updateBookDto.Id,
-                Title = updateBookDto.Title,
-                Price = updateBookDto.Price,
-                Stock = updateBookDto.Stock,
-                Authors = updateBookDto.Authors.Select(a => new Author { Name = a.Name }).ToList()
-            };
-        }
-    }
-
 }
