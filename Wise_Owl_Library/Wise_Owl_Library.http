@@ -1,0 +1,6 @@
+@Wise_Owl_Library_HostAddress = http://localhost:5255
+
+GET {{Wise_Owl_Library_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
